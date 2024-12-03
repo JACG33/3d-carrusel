@@ -1,5 +1,5 @@
-root{
-	--body-dark:#0f0f0f;
+:root{
+	--body-dark: #0f0f0f;
 }
 
 *{
@@ -8,7 +8,7 @@ root{
 }
 
 body{
-	background: #0f0f0f;
+	background-color: var(--body-dark);
 	font-family: 'Poppins';
 }
 
@@ -58,7 +58,7 @@ body{
 	height: 250px;
 	top: calc(100dvh - 65dvh);
 	transform-style: preserve-3d;
-	scale: 0.6;
+	scale: 0.8;
 	transition: 800ms;
 	transform: perspective(1500px);
 /*	animation: autoRun 20s infinite linear;*/
@@ -76,7 +76,7 @@ body{
 .item{
 	position: absolute;
 	inset: 0;
-	transform: rotateX(calc((var(--position) - 1) * (360 / var(--quantity)) * -1deg)) translateZ(860px);
+	transform: rotateX(calc((var(--position) - 1) * (360 / var(--quantity)) * -1deg)) translateZ(420px);
 	transition: 500ms;
 }
 

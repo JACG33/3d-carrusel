@@ -1,0 +1,58 @@
+*{
+	margin: 0px;
+	padding: 0px;
+}
+
+.banner{
+	width: 100%;
+	height: 100dvh;
+	text-align: center;
+	overflow: hidden;
+	position: relative;
+}
+
+.slider{
+	position: absolute;
+	width: 200px;
+	height: 250px;
+	top: 10%;
+	left: calc(50% - 100px);
+	transform-style: preserve-3d;
+	scale: 0.7;
+	transition: 500ms;
+	transform: perspective(1500px) rotateX(-7deg);
+	animation: autoRun 30s infinite linear;
+}
+
+@keyframes autoRun{
+	0%{
+		transform: perspective(1500px) rotateX(-7deg) rotateY(0deg);
+	}
+	100%{
+		transform: perspective(1500px) rotateX(-7deg) rotateY(360deg);
+	}
+}
+
+.item{
+	position: absolute;
+	inset: 0;
+	transform: rotateY(calc((var(--position) - 1) * (360 / var(--quantity)) * 1deg)) translateZ(720px);
+	transition: 500ms;
+
+/*	&:hover{
+		transform: rotateY(calc((var(--position) - 1) * (360 / var(--quantity)) * 1deg)) translateZ(320px) rotateX(16deg);
+	}*/
+}
+
+.img__pers{
+	border-radius: 8px;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+
+.control{
+	position: absolute;
+  inset: auto 10% 0px 10%;
+}

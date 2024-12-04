@@ -5,8 +5,18 @@ class ThreeDCarrousel {
 	#stepWheelDegre = 0
 	#actualSrc
 	#scale
+	#touchstart = 0
+	#touchmove = false
+	#touchend = 0
+	#sliderId = "d3_slider_wrapper"
 
-	constructor(idWrapper, url, scale = 0.8) {
+	/**
+	 * @parman {Object} opc Objeto de opciones.
+	 * @parman {String} opc.idWrapper Nombre del contenedor de la images.
+	 * @parman {String} opc.url Url de la primera imagen.
+	 * @parman {String} opc.scale Escala del carrusel por defecto es 0.8.
+	 */
+	constructor({ idWrapper = "", url = "", scale = 0.8 }) {
 		this.#idWrapper = idWrapper
 		this.#actualSrc = url
 		this.#scale = scale
@@ -16,6 +26,9 @@ class ThreeDCarrousel {
 	}
 
 
+	/**
+	 * Funcion que crea el carrusel
+	 */
 	#makeCarrusel() {
 
 		const clone = this.#$doc(`#${this.#idWrapper}`).cloneNode(true)
@@ -23,8 +36,8 @@ class ThreeDCarrousel {
 
 		// Slider wrapper
 		const slider = document.createElement("div")
-		slider.className = "slider"
-		slider.id = "slider_wrapper"
+		slider.className = "d3__slider"
+		slider.id = this.#sliderId
 
 		// List items
 		let items = []
@@ -39,14 +52,14 @@ class ThreeDCarrousel {
 		cleanChildes.forEach((ele, index) => {
 			// Item wrapper
 			const item = document.createElement("div")
-			item.className = "item"
+			item.className = "d3__item"
 			item.style.setProperty("--position", index + 1)
 		
 			// Img
 			const img = document.createElement("img")
 			img.dataset.img = "img"
 			img.loading = "lazy"
-			img.className = "img__pers"
+			img.className = "d3__img__pers"
 			img.src = ele.dataset?.src ? ele.dataset?.src : ele.src
 
 			if (cleanChildes.length > 10) {
@@ -64,7 +77,7 @@ class ThreeDCarrousel {
 		this.#stepWheelDegre = 360 / cleanChildes.length
 
 		this.#$doc(`#${this.#idWrapper}`).innerHTML = null
-		this.#$doc(`#${this.#idWrapper}`).className = "banner"
+		this.#$doc(`#${this.#idWrapper}`).className = "d3__banner"
 		items.forEach(ele => {
 			slider.append(ele)
 		})
@@ -80,18 +93,20 @@ class ThreeDCarrousel {
 		return document.querySelector(selector)
 	}
 
+	/**
+	 * Funcion que añade los eventListeners para las funciones del carrusel
+	 */
 	#listeners() {
 		document.addEventListener("click", e => {
 			const { target } = e
 
 			if (target.dataset.img == "img") {
-
 				if (this.#actualSrc != target.src) {
-					this.#actualSrc = target.dataset.src
+					this.#actualSrc = target.dataset?.src ? target.dataset?.src : target.src
 					document.querySelectorAll("img").forEach((ele, index) => {
 						if (ele.src == target.src) {
 							this.#wheelDegre = Number(index) * this.#stepWheelDegre
-							this.#$doc("#slider_wrapper").style.transform = `perspective(1500px) rotateX(${this.#wheelDegre}deg)`
+							this.#$doc(`#${this.#sliderId}`).style.transform = `perspective(1500px) rotateX(${this.#wheelDegre}deg)`
 						}
 					})
 					if (document.startViewTransition) {
@@ -107,27 +122,51 @@ class ThreeDCarrousel {
 
 		document.addEventListener("wheel", e => {
 			const { target } = e
-			if (target.closest(".banner")) {
+			if (target.closest(".d3__banner")) {
 				this.#wheelDegre += e.deltaY < 0 ? -this.#stepWheelDegre : this.#stepWheelDegre;
 			
-				this.#$doc("#slider_wrapper").style.transform = `perspective(1500px) rotateX(${this.#wheelDegre}deg)`
+				this.#$doc(`#${this.#sliderId}`).style.transform = `perspective(1500px) rotateX(${this.#wheelDegre}deg)`
 			}
 		})
+
+		document.addEventListener("touchstart", e => {
+			const { target } = e
+			if (target.closest(".d3__banner")) {
+				this.#touchstart = e.changedTouches[0].clientY
+			}
+		})
+
+		document.addEventListener("touchmove", e => {
+			const { target } = e
+			if (target.closest(".d3__banner")) {
+				this.#touchmove = true
+			}
+		})
+
 
 		document.addEventListener("touchend", e => {
 			const { target } = e
+			if (target.closest(".d3__banner")) {
+				this.#touchend = e.changedTouches[0].clientY
 
-			if (target.closest(".banner")) {
-				const height = target.closest(".banner").clientHeight / 2
-				const touchend = e.changedTouches[0].clientY
+				if (this.#touchmove) {
+					const height = target.closest(".d3__banner").clientHeight / 2
 
-				this.#wheelDegre += touchend > height ? -this.#stepWheelDegre : this.#stepWheelDegre;
+					this.#wheelDegre += this.#touchend > this.#touchstart ? -this.#stepWheelDegre : this.#stepWheelDegre;
 		
-				this.#$doc("#slider_wrapper").style.transform = `perspective(1500px) rotateX(${this.#wheelDegre}deg)`
+					this.#$doc(`#${this.#sliderId}`).style.transform = `perspective(1500px) rotateX(${this.#wheelDegre}deg)`
+
+					// Resetear variables
+					this.#touchstart=0
+					this.#touchmove = false
+					this.#touchend=0
+				}
 			}
 		})
+
+
 	}
 
 }
 
-const dds = new ThreeDCarrousel("wrapper", "img/photo-1.avif", 0.65)
+const dds = new ThreeDCarrousel({ idWrapper: "wrapper", scale: 0.65, url: "img/photo-1.avif" })

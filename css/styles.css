@@ -17,7 +17,7 @@ body{
   grid-template-columns: 320px 1fr;
 }
 
-.banner{
+.d3__banner{
 	width: 100%;
 	height: 100dvh;
 	text-align: center;
@@ -25,10 +25,11 @@ body{
 	position: relative;
 	display: flex;
 	justify-content: center;
+	align-items: center;
 }
 
-.banner::after,
-.banner::before{
+.d3__banner::after,
+.d3__banner::before{
 	content: "";
 	width: 100%;
 	height: 100px;
@@ -39,48 +40,34 @@ body{
 	user-select: none;
 }
 
-.banner::before{
+.d3__banner::before{
 	top: 0px;
-	background-image: linear-gradient(180deg, var(--body-dark), transparent);
-	clip-path: polygon(9% 0%, 91% 0, 92% 100%, 8% 100%);
-
+	background-image: linear-gradient(180deg, var(--body-dark) 5%, transparent 100%);
 }
 
-.banner::after{
+.d3__banner::after{
 	bottom: 0px;
-	background-image: linear-gradient(0deg, var(--body-dark), transparent);
-	clip-path: polygon(6% 0%, 93% 0, 91% 100%, 9% 100%);
+	background-image: linear-gradient(0deg, var(--body-dark) 5%, transparent 100%);
 }
 
-.slider{
+.d3__slider{
 	position: absolute;
 	width: 200px;
 	height: 250px;
-	top: calc(100dvh - 65dvh);
 	transform-style: preserve-3d;
 	scale: 0.8;
 	transition: 800ms;
 	transform: perspective(1500px);
-/*	animation: autoRun 20s infinite linear;*/
 }
 
-@keyframes autoRun{
-	0%{
-		transform: perspective(1500px) rotateX(-7deg) rotateY(0deg);
-	}
-	100%{
-		transform: perspective(1500px) rotateX(-7deg) rotateY(360deg);
-	}
-}
-
-.item{
+.d3__item{
 	position: absolute;
 	inset: 0;
 	transform: rotateX(calc((var(--position) - 1) * (360 / var(--quantity)) * -1deg)) translateZ(420px);
 	transition: 500ms;
 }
 
-.img__pers{
+.d3__img__pers{
 	border-radius: 8px;
 	width: 100%;
 	height: 100%;
@@ -88,11 +75,6 @@ body{
 	cursor: pointer;
 }
 
-
-.control{
-	position: absolute;
-  inset: auto 10% 0px 10%;
-}
 
 @view-transition {
   navigation: auto;

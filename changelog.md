@@ -1,3 +1,12 @@
+# Cambio 19-DIC-2024
++ Modifique la logica anterior, ahora utilizo los listener que proporciona __Lit__ en este caso serian:
+	* @click
+	* @wheel
+	* @touchstart
+	* @touchmove
+	* @touchend
++ Posiblemente agregue mas funcionalidades si lo veo necesario.
+
 # Cambio 17-DIC-2024
 
 + Conversion a componente html(fase beta).

@@ -8,100 +8,90 @@ import { LitElement, css, html } from 'lit'
  */
 export class MyElement extends LitElement {
 
-  #idWrapper = ""
   #wheelDegre = 0
   #stepWheelDegre = 0
   #actualSrc
-  #scale
   #touchstart = 0
   #touchmove = false
   #touchend = 0
   #sliderId = "d3_slider_wrapper"
-  #slider
-
-
+  #listImgItemsHtml
+  #listImgItems = []
 
   static get properties() {
     return {
-      prop: { type: String }
+      scale: { type: Number }
     }
   }
 
   constructor() {
     super()
 
-    this.#makeCarrusel()  
-    document.addEventListener("DOMContentLoaded", () => {
-      this.shadowRoot?.querySelector(`#${this.#sliderId}`).addEventListener("click", e => {
-        const { target } = e
-        if (target.dataset.img == "img") {
-          if (this.#actualSrc != target.src) {
-            this.#actualSrc = target.dataset?.src ? target.dataset?.src : target.src
-            Array.from(this.shadowRoot?.querySelector("div").querySelectorAll("img")).forEach((ele, index) => {
-              if (ele.src == target.src) {
-                this.#wheelDegre = Number(index) * this.#stepWheelDegre
-                this.shadowRoot.querySelector(`#${this.#sliderId}`).style.transform = `perspective(1500px) rotateX(${this.#wheelDegre}deg)`
-              }
-            })
-            // if (document.startViewTransition) {
-            //   document.startViewTransition(() => {
-            //     this.#$doc("#preview").src = target.src
-            //   })
-            // } else {
-            //   this.#$doc("#preview").src = target.src
-            // }
+    this.#makeCarrusel()
+  }
+
+  handleClick(e) {
+    const { target } = e
+    if (target.dataset.img == "img") {
+      if (this.#actualSrc != target.src) {
+        this.#actualSrc = target.dataset?.src ? target.dataset?.src : target.src
+        Array.from(this.shadowRoot?.querySelector("div").querySelectorAll("img")).forEach((ele, index) => {
+          if (ele.src == target.src) {
+            this.#wheelDegre = Number(index) * this.#stepWheelDegre
+            this.shadowRoot.querySelector(`#${this.#sliderId}`).style.transform = `perspective(1500px) rotateX(${this.#wheelDegre}deg)`
           }
-        }
-      })
+        })
+      }
+    }
+  }
 
-
-      this.shadowRoot?.querySelector(`#${this.#sliderId}`).addEventListener("wheel", e => {
-        const { target } = e
-
-        this.#wheelDegre += e.deltaY < 0 ? -this.#stepWheelDegre : this.#stepWheelDegre;
+  handleWheel(e) {
+    this.#wheelDegre += e.deltaY < 0 ? -this.#stepWheelDegre : this.#stepWheelDegre;
       
-        this.shadowRoot.querySelector(`#${this.#sliderId}`).style.transform = `perspective(1500px) rotateX(${this.#wheelDegre}deg)`
-      })
+    this.shadowRoot.querySelector(`#${this.#sliderId}`).style.transform = `perspective(1500px) rotateX(${this.#wheelDegre}deg)`
+  }
 
-      this.shadowRoot?.querySelector(`#${this.#sliderId}`).addEventListener("touchstart", e => {
-        const { target } = e
-        this.#touchstart = e.changedTouches[0].clientY
-      })
+  handleTouchStart(e) {
+    const { target } = e
+    this.#touchstart = e.changedTouches[0].clientY
+  }
 
-      this.shadowRoot?.querySelector(`#${this.#sliderId}`).addEventListener("touchmove", e => {
-        const { target } = e
-        this.#touchmove = true
-      })
+  handleTouchMove(e) {
+    this.#touchmove = true
+  }
 
+  handleTouchEnd(e) {
+    const { target } = e
+    this.#touchend = e.changedTouches[0].clientY
 
-      this.shadowRoot?.querySelector(`#${this.#sliderId}`).addEventListener("touchend", e => {
-        const { target } = e
-        this.#touchend = e.changedTouches[0].clientY
+    if (this.#touchmove) {
+      const height = target.clientHeight / 2
 
-        if (this.#touchmove) {
-          const height = target.clientHeight / 2
-
-          this.#wheelDegre += this.#touchend > this.#touchstart ? -this.#stepWheelDegre : this.#stepWheelDegre;
+      this.#wheelDegre += this.#touchend > this.#touchstart ? -this.#stepWheelDegre : this.#stepWheelDegre;
     
-          this.shadowRoot.querySelector(`#${this.#sliderId}`).style.transform = `perspective(1500px) rotateX(${this.#wheelDegre}deg)`
+      this.shadowRoot.querySelector(`#${this.#sliderId}`).style.transform = `perspective(1500px) rotateX(${this.#wheelDegre}deg)`
 
-          // Resetear variables
-          this.#touchstart = 0
-          this.#touchmove = false
-          this.#touchend = 0
-        }
-        // if (target.closest(".d3__banner")) {
-        // }
-      })
-    })  
-
-
+      // Resetear variables
+      this.#touchstart = 0
+      this.#touchmove = false
+      this.#touchend = 0
+    }
   }
 
   render() {
     return html`
       <slot></slot>
-      ${this.#slider}
+      <div 
+        class="d3__slider" id="${this.#sliderId}" 
+        style="--quantity: ${this.#listImgItems.length}; ${this.scale ? 'scale:' + this.scale + ';' : ''}"
+        @click="${this.handleClick}"
+        @wheel="${this.handleWheel}"
+        @touchstart="${this.handleTouchStart}"
+        @touchmove="${this.handleTouchMove}"
+        @touchend="${this.handleTouchEnd}"
+      >
+        ${this.#listImgItemsHtml}
+      </div>
     `
   }
 
@@ -169,26 +159,14 @@ export class MyElement extends LitElement {
   }
 
   /**
-   * @param {String} selector String del Selector
-   * @returns HTMLElement 
-   */
-  #$doc(selector, all = false) {
-    return document.querySelector(selector)
-  }
-
-  /**
    * Funcion que crea el carrusel
    */
   #makeCarrusel() {
 
-    const clone = Array.from(document.querySelectorAll("img"))
-    // Slider wrapper
-    const slider = document.createElement("div")
-    slider.className = "d3__slider"
-    slider.id = this.#sliderId
+    this.#listImgItems = Array.from(document.querySelectorAll("img"))
 
     let items = []
-    clone.forEach((ele, index) => {
+    this.#listImgItems.forEach((ele, index) => {
       // Item wrapper
       const item = document.createElement("div")
       item.className = "d3__item"
@@ -201,28 +179,18 @@ export class MyElement extends LitElement {
       img.className = "d3__img__pers"
       img.src = ele.dataset?.src ? ele.dataset?.src : ele.src
 
-      if (clone.length > 10) {
-        item.style.transform = `rotateX(calc((var(--position) - 1) * (360 / var(--quantity)) * -1deg)) translateZ(${42 * clone.length}px)`
+      if (this.#listImgItems.length > 10) {
+        item.style.transform = `rotateX(calc((var(--position) - 1) * (360 / var(--quantity)) * -1deg)) translateZ(${42 * this.#listImgItems.length}px)`
       }
     
       item.append(img)
       items.push(item)
     })
 
-    slider.style.scale = this.#scale
+    this.#stepWheelDegre = 360 / this.#listImgItems.length
 
-    slider.style.setProperty("--quantity", clone.length)
-
-    this.#stepWheelDegre = 360 / clone.length
-
-    // document.innerHTML = null
-    document.className = "d3__banner"
-    items.forEach(ele => {
-      slider.append(ele)
-    })
     document.querySelectorAll("img").forEach(ele => { ele.remove() })
-    // document.append(slider)
-    this.#slider = slider
+    this.#listImgItemsHtml = items
   }
 }
 
